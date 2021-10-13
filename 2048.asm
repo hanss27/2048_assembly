@@ -4,6 +4,8 @@
 ; - 
 ; - 
 
+JUMPS       ;UNCOMMENT WHEN RUNNING TASM, COMMENT WHEN COMPILING
+
 .model small
 .stack 200h
 .data
@@ -56,6 +58,7 @@ CURSORSELECT MACRO CSR
         MOV AH, 0
         INT 16H
         CMP AH, 50H         ; select bawah
+        
         JE DOWN
         CMP AH, 48H         ; select atas
         JE UP           
