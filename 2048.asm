@@ -1,8 +1,8 @@
-; Group     ;
-; -
-;  -
-; -
-; -
+; Group     ; 
+; - 
+;  - 
+; - 
+; - 
 
 JUMPS       ;UNCOMMENT WHEN RUNNING TASM, COMMENT WHEN COMPILING
 
@@ -14,15 +14,15 @@ STRMENU1 DB '------2048------','$'
 STRMENU2 DB 'START','$'
 STRMENU3 DB 'EXIT','$'
 STRBLANK DB ' ','$'
-STRV DB '|','____','|','____','|','____','|','____','|','$'
+STRV DB '|','____','|','____','|','____','|','____','|','$' 
 STRP DB '|', '$'
-STRSC DB 'score : ','$'
+STRSC DB 'score : ','$'    
 COLOR DB ?
 OPTION DB ?
 CSYM DB '>','$'
 CSROW DB ?
 CSCOL DB ?
-MATRIX DW 512, 512, 1024, 64, 64, 2048, 64, 2, 2, 2, 2, 8, 2, 4, 4, 2
+MATRIX DW 512, 512, 1024, 64, 64, 2048, 64, 2, 2, 2, 2, 8, 2, 4, 4, 2 
 D0 DW ?
 D1 DW ?
 D2 DW ?
@@ -30,6 +30,7 @@ D3 DW ?
 F1 DB ?
 F2 DB ?
 F3 DB ?
+COUNTER DW 0
 
 ;=======================================================================================================
 .code
@@ -56,40 +57,40 @@ ENDM
 
 
 CURSORSELECT MACRO CSR
-SELECTING:
-MOV AH, 0
-INT 16H
-CMP AH, 50H         ; select bawah
+    SELECTING:
+    MOV AH, 0
+    INT 16H
+    CMP AH, 50H         ; select bawah
 
-JE DOWN
-CMP AH, 48H         ; select atas
-JE UP
-CMP AH, 1CH         ; enter from keyboard
-JE OUTRO
-JMP SELECTING
+    JE DOWN
+    CMP AH, 48H         ; select atas
+    JE UP
+    CMP AH, 1CH         ; enter from keyboard
+    JE OUTRO
+    JMP SELECTING
 
-UP:
-MOV OPTION, 1
-MOV CSROW, 4
-PRINTLINE STRBLANK,0FH  ;print start
-SETCURSOR CSR,12
-PRINTLINE CSYM, 0FH
-SETCURSOR CSR, 14
-PRINTLINE STRMENU2, 07H
+    UP:
+    MOV OPTION, 1
+    MOV CSROW, 4
+    PRINTLINE STRBLANK,0FH  ;print start
+    SETCURSOR CSR,12
+    PRINTLINE CSYM, 0FH
+    SETCURSOR CSR, 14
+    PRINTLINE STRMENU2, 07H
 
-SETCURSOR 5,14          ;print exit
-PRINTLINE STRMENU3,0CH
-SETCURSOR 4,19
-JMP SELECTING
+    SETCURSOR 5,14          ;print exit
+    PRINTLINE STRMENU3,0CH
+    SETCURSOR 4,19
+    JMP SELECTING
 
-DOWN:
-MOV OPTION, 2
-MOV CSROW, 5
-PRINTLINE STRBLANK,0FH  ;print start
-SETCURSOR 4,12
-PRINTLINE STRBLANK,0FH
-SETCURSOR 4,14
-PRINTLINE STRMENU2,07H
+    DOWN:
+    MOV OPTION, 2
+    MOV CSROW, 5
+    PRINTLINE STRBLANK,0FH  ;print start
+    SETCURSOR 4,12
+    PRINTLINE STRBLANK,0FH
+    SETCURSOR 4,14
+    PRINTLINE STRMENU2,07H
 
 
 SETCURSOR CSR,12        ;print exit
@@ -111,31 +112,31 @@ PRINTLINE STRV, 07H
 ENDM
 
 DISP_MAT_ROW MACRO MAT, ROW, INDEX
-LEA SI, MAT
-ADD SI, INDEX
-ADD SI, INDEX               ; get array addres of MAT+INDEX
-SETCURSOR ROW, 2            ; masih error get array valuenya
-PRINTLINE STRP, 07H
-PRINTNUM [SI]
-INC SI
-INC SI
-SETCURSOR ROW, 7
-PRINTLINE STRP, 07H
-PRINTNUM [SI]
-INC SI
-INC SI
-SETCURSOR ROW, 12
-PRINTLINE STRP, 07H
-PRINTNUM [SI]
-INC SI
-INC SI
-SETCURSOR ROW, 17
-PRINTLINE STRP, 07H
-PRINTNUM [SI]
-INC SI
-INC SI
-SETCURSOR ROW, 22
-PRINTLINE STRP, 07H
+    LEA SI, MAT
+    ADD SI, INDEX
+    ADD SI, INDEX               ; get array addres of MAT+INDEX
+    SETCURSOR ROW, 2            ; masih error get array valuenya
+    PRINTLINE STRP, 07H
+    PRINTNUM [SI]
+    INC SI
+    INC SI
+    SETCURSOR ROW, 7
+    PRINTLINE STRP, 07H
+    PRINTNUM [SI]
+    INC SI
+    INC SI
+    SETCURSOR ROW, 12
+    PRINTLINE STRP, 07H
+    PRINTNUM [SI]
+    INC SI
+    INC SI
+    SETCURSOR ROW, 17
+    PRINTLINE STRP, 07H
+    PRINTNUM [SI]
+    INC SI
+    INC SI
+    SETCURSOR ROW, 22
+    PRINTLINE STRP, 07H
 ENDM
 
 DISP_MAT MACRO MAT
@@ -156,339 +157,429 @@ PRINTLINE STRBLANK, 07H
 SETCURSOR 12,10
 PRINTNUM SCORE
 
-ENDM
+ENDM 
 
 PRINTNUM MACRO NUM
-LOCAL DIVIDE, PRINT
-MOV CX, NUM
-MOV D3, 0
-MOV D2, 0
-MOV D1, 0
-MOV D0, 0
-DIVIDE:
-MOV AH, 0     ; 2048
-MOV AX, CX
-MOV BX, 10
-XOR DX, DX
-DIV BX
-MOV AH, 0
-MOV CX, AX
-MOV D0, DX
-CMP CX, 0
-JE PRINT
-MOV AH, 0     ; 204
-MOV AX, CX
-MOV BX, 10
-XOR DX, DX
-DIV BX
-MOV AH, 0
-MOV CX, AX
-MOV D1, DX
-CMP CX, 0
-JE PRINT
-MOV AH, 0
-MOV AX, CX
-MOV BX, 10
-XOR DX, DX
-DIV BX
-MOV AH, 0
-MOV CX, AX
-MOV D2, DX
-CMP CX, 0
-JE PRINT
-MOV AH, 0
-MOV AX, CX
-MOV BX, 10
-XOR DX, DX
-DIV BX
-MOV AH, 0
-MOV CX, AX
-MOV D3, DX
-CMP CX, 0
-JE PRINT
-PRINT:
-MOV DX, D3
-MOV DH, 0
-MOV AH, 2
-ADD DL, 48
-INT 21H
-MOV DX, D2
-MOV DH, 0
-MOV AH, 2
-ADD DL, 48
-INT 21H
-MOV DX, D1
-MOV DH, 0
-MOV AH, 2
-ADD DL, 48
-INT 21H
-MOV DX, D0
-MOV DH, 0
-MOV AH, 2
-ADD DL, 48
-INT 21H
+    LOCAL DIVIDE, PRINT
+        MOV CX, NUM
+        MOV D3, 0
+        MOV D2, 0
+        MOV D1, 0
+        MOV D0, 0
+    DIVIDE:
+        MOV AH, 0     ; 2048
+        MOV AX, CX
+        MOV BX, 10
+        XOR DX, DX
+        DIV BX
+        MOV AH, 0
+        MOV CX, AX
+        MOV D0, DX
+        CMP CX, 0
+        JE PRINT
+        MOV AH, 0     ; 204
+        MOV AX, CX
+        MOV BX, 10
+        XOR DX, DX
+        DIV BX
+        MOV AH, 0
+        MOV CX, AX
+        MOV D1, DX
+        CMP CX, 0
+        JE PRINT  
+        MOV AH, 0
+        MOV AX, CX
+        MOV BX, 10
+        XOR DX, DX
+        DIV BX
+        MOV AH, 0
+        MOV CX, AX
+        MOV D2, DX
+        CMP CX, 0
+        JE PRINT
+        MOV AH, 0
+        MOV AX, CX
+        MOV BX, 10
+        XOR DX, DX
+        DIV BX
+        MOV AH, 0
+        MOV CX, AX
+        MOV D3, DX
+        CMP CX, 0
+        JE PRINT
+    PRINT:
+        MOV DX, D3
+        MOV DH, 0 
+        MOV AH, 2
+        ADD DL, 48
+        INT 21H
+        MOV DX, D2
+        MOV DH, 0
+        MOV AH, 2
+        ADD DL, 48
+        INT 21H
+        MOV DX, D1
+        MOV DH, 0
+        MOV AH, 2
+        ADD DL, 48
+        INT 21H
+        MOV DX, D0
+        MOV DH, 0
+        MOV AH, 2
+        ADD DL, 48
+        INT 21H        
 ENDM
 
-SCORING PROC NEAR
-ADD BX, AX
-MOV AX, 0
-ADD CX, BX
-RET
+SCORING PROC NEAR   
+    ADD BX, AX    
+    MOV AX, 0    
+    ADD CX, BX 
+    RET  
 SCORING ENDP
 
 
 COMPARING MACRO D0, D1, D2, D3, SCORE
-LOCAL CHECK,FLAG1,FLAG2,FLAG3,CORRECT1, CORRECT2, CORRECT3, RETURN
+    LOCAL CHECK,FLAG1,FLAG2,FLAG3,CORRECT1, CORRECT2, CORRECT3, RETURN
+    
+    MOV F1, 0   ; SET COMPARE FLAG TO 0
+    MOV F2, 0
+    MOV F3, 0
+    
+    MOV CX, SCORE
+    CHECK:
+    CMP F1, 0
+    JE FLAG1
+    CMP F2, 0
+    JE FLAG2
+    CMP F3, 0
+    JE FLAG3
+    JMP RETURN 
 
-MOV F1, 0   ; SET COMPARE FLAG TO 0
-MOV F2, 0
-MOV F3, 0
+    FLAG1:
+    MOV AL, 1
+    MOV F1, AL
+    MOV AX, D3
+    MOV BX, D2
+    CMP AX, BX 
+    JE CORRECT1
+    JMP CHECK
+        
+    FLAG2:
+    MOV AL, 1
+    MOV F2, AL
+    MOV AX, D2
+    MOV BX, D1
+    CMP AX, BX        
+    JE CORRECT2
+    JMP CHECK
+        
+    FLAG3:
+    MOV AL, 1
+    MOV F3, AL
+    MOV AX, D1
+    MOV BX, D0
+    CMP AX, BX        
+    JE CORRECT3
+    JMP CHECK 
+     
+    CORRECT1:    
+    CALL SCORING
+    MOV D3, BX
+    MOV D2, AX
 
-MOV CX, SCORE
-CHECK:
-CMP F1, 0
-JE FLAG1
-CMP F2, 0
-JE FLAG2
-CMP F3, 0
-JE FLAG3
-JMP RETURN
-
-FLAG1:
-MOV AL, 1
-MOV F1, AL
-MOV AX, D3
-MOV BX, D2
-CMP AX, BX
-JE CORRECT1
-JMP CHECK
-
-FLAG2:
-MOV AL, 1
-MOV F2, AL
-MOV AX, D2
-MOV BX, D1
-CMP AX, BX
-JE CORRECT2
-JMP CHECK
-
-FLAG3:
-MOV AL, 1
-MOV F3, AL
-MOV AX, D1
-MOV BX, D0
-CMP AX, BX
-JE CORRECT3
-JMP CHECK
-
-CORRECT1:
-CALL SCORING
-MOV D3, BX
-MOV D2, AX
-
-JMP CHECK
-
-CORRECT2:
-CALL SCORING
-MOV D2, BX
-MOV D1, AX
-JMP CHECK
-
-CORRECT3:
-CALL SCORING
-MOV D1, BX
-MOV D0, AX
-JMP CHECK
-
-RETURN:
-MOV SCORE, CX
+    JMP CHECK
+    
+    CORRECT2:
+    CALL SCORING    
+    MOV D2, BX
+    MOV D1, AX  
+    JMP CHECK
+    
+    CORRECT3:
+    CALL SCORING    
+    MOV D1, BX
+    MOV D0, AX     
+    JMP CHECK
+    
+    RETURN:
+    MOV SCORE, CX        
 ENDM
 
 GET_ROW_VALUE PROC NEAR
-MOV D0 ,0
-MOV D1 ,0
-MOV D2 ,0
-MOV D3 ,0
+    MOV D0 ,0
+    MOV D1 ,0
+    MOV D2 ,0
+    MOV D3 ,0
+    
+    MOV CX, [SI]   ; [E1]  E2  E3  E4
+    MOV D0, CX
+    INC SI
+    INC SI
+    
+    MOV CX, [SI]   ;  E1  [E2] E3  E4
+    MOV D1, CX
+    INC SI
+    INC SI
 
-MOV CX, [SI]   ; [E1]  E2  E3  E4
-MOV D0, CX
-INC SI
-INC SI
+    MOV CX, [SI]   ;  E1   E2 [E3] E4
+    MOV D2, CX
+    INC SI
+    INC SI
 
-MOV CX, [SI]   ;  E1  [E2] E3  E4
-MOV D1, CX
-INC SI
-INC SI
+    MOV CX, [SI]   ;  E1   E2  E3 [E4]
+    MOV D3, CX
 
-MOV CX, [SI]   ;  E1   E2 [E3] E4
-MOV D2, CX
-INC SI
-INC SI
-
-MOV CX, [SI]   ;  E1   E2  E3 [E4]
-MOV D3, CX
-
-RET
-GET_ROW_VALUE ENDP
+    RET
+GET_ROW_VALUE ENDP   
 
 GET_COL_VALUE PROC NEAR
-MOV D0 ,0
-MOV D1 ,0
-MOV D2 ,0
-MOV D3 ,0
+    MOV D0 ,0
+    MOV D1 ,0
+    MOV D2 ,0
+    MOV D3 ,0
+    
+    MOV CX, [SI]   ; [E1]  E5  E9  E13
+    MOV D0, CX
+    ADD SI,8
+    
+    MOV CX, [SI]   ;  E1  [E5] E9  E13
+    MOV D1, CX
+    ADD SI,8
 
-MOV CX, [SI]   ; [E1]  E5  E9  E13
-MOV D0, CX
-ADD SI,8
+    MOV CX, [SI]   ;  E1   E5 [E9] E13
+    MOV D2, CX
+    ADD SI,8
 
-MOV CX, [SI]   ;  E1  [E5] E9  E13
-MOV D1, CX
-ADD SI,8
-
-MOV CX, [SI]   ;  E1   E5 [E9] E13
-MOV D2, CX
-ADD SI,8
-
-MOV CX, [SI]   ;  E1   E5  E9 [E13]
-MOV D3, CX
-ADD SI,8
-
-RET
+    MOV CX, [SI]   ;  E1   E5  E9 [E13]
+    MOV D3, CX
+    ADD SI,8
+    
+    RET
 GET_COL_VALUE ENDP
 
+ALIGNMAT MACRO  D0, D1, D2, D3, COUNTER
+    LOCAL ALIGN1, ALIGN2, ALIGN2F, ALIGN3,ALIGN3F,RETURN
+    MOV COUNTER, 1
+    MOV AX, D3
+    CMP AX, 0
+    JE ALIGN1
+    JNE ALIGN2F
+
+    ALIGN1:
+        MOV AX, COUNTER
+        ADD AX, 1
+        MOV COUNTER, AX
+
+        MOV BX, D2
+        MOV D3, BX
+        MOV CX, D1
+        MOV D2, CX
+        MOV CX, D0
+        MOV D1, CX
+        MOV D0, 0
+
+        MOV AX, COUNTER
+        CMP AX, 4
+        JE RETURN
+
+        MOV BX, D3
+        CMP BX, 0
+        JE ALIGN1
+        JNE ALIGN2F
+
+    ALIGN2F:
+        MOV AX, COUNTER
+        MOV AX, 1
+        MOV COUNTER, AX 
+        JMP ALIGN2   
+    ALIGN2:
+        MOV AX, COUNTER
+        ADD AX, 1
+        MOV COUNTER, AX
+
+        MOV AX, D2
+        CMP AX, 0
+        JNE ALIGN3
+
+        MOV AX, D1
+        MOV BX, D0
+        
+        MOV D2, AX
+        MOV D1, BX
+        MOV D0, 0
+  
+        MOV AX, COUNTER
+        CMP AX, 3
+        JE RETURN
+
+        MOV AX, D2
+        CMP AX, 0
+        JE ALIGN2
+        JNE ALIGN3F
+    ALIGN3F:
+        MOV AX, COUNTER
+        MOV AX, 1
+        MOV COUNTER, AX 
+        JMP ALIGN3    
+    ALIGN3:
+        MOV AX, D1
+        CMP AX, 0
+        JNE RETURN
+
+        MOV AX, COUNTER
+        ADD AX, 1
+        MOV COUNTER, AX
+
+        MOV AX, COUNTER
+        CMP AX, 2
+        JE RETURN
+
+        MOV AX, D0
+        MOV D1, AX
+        MOV D0, 0
+        JMP RETURN
+    RETURN:                
+ENDM
+
 SHIFT_ROW_RIGHT MACRO MAT, INDEX, SCORE
-; CLEAN TEMPORARY VARIABLE
+    ; CLEAN TEMPORARY VARIABLE
+    
+    LEA SI, MAT 
+    ADD SI, INDEX
+    ADD SI, INDEX
+    
+    CALL GET_ROW_VALUE
+    
+    COMPARING D0, D1, D2, D3, SCORE
+    ALIGNMAT D0, D1, D2, D3, COUNTER
 
-LEA SI, MAT
-ADD SI, INDEX
-ADD SI, INDEX
-
-CALL GET_ROW_VALUE
-
-COMPARING D0, D1, D2, D3, SCORE
-LEA SI, MAT
-ADD SI, INDEX
-ADD SI, INDEX
-
-MOV CX, D0
-MOV [SI], CX
-INC SI
-INC SI
-
-MOV CX, D1
-MOV [SI], CX
-INC SI
-INC SI
-
-MOV CX, D2
-MOV [SI], CX
-INC SI
-INC SI
-
-MOV CX, D3
-MOV [SI], CX
-
+    LEA SI, MAT
+    ADD SI, INDEX
+    ADD SI, INDEX
+    
+    MOV CX, D0
+    MOV [SI], CX
+    INC SI
+    INC SI
+    
+    MOV CX, D1
+    MOV [SI], CX
+    INC SI
+    INC SI
+    
+    MOV CX, D2
+    MOV [SI], CX
+    INC SI
+    INC SI
+    
+    MOV CX, D3
+    MOV [SI], CX
+    
 ENDM
 
 SHIFT_ROW_LEFT MACRO MAT, INDEX, SCORE
-; CLEAN TEMPORARY VARIABLE
+    ; CLEAN TEMPORARY VARIABLE
 
-LEA SI, MAT
-ADD SI, INDEX
-ADD SI, INDEX
+    LEA SI, MAT 
+    ADD SI, INDEX
+    ADD SI, INDEX
+    
+    CALL GET_ROW_VALUE
+    
+    COMPARING D3, D2, D1, D0, SCORE
+    ALIGNMAT D3, D2, D1, D0, COUNTER
 
-CALL GET_ROW_VALUE
+    LEA SI, MAT
+    ADD SI, INDEX
+    ADD SI, INDEX
+    
+    MOV CX, D0
+    MOV [SI], CX
+    INC SI
+    INC SI
+    
+    MOV CX, D1
+    MOV [SI], CX
+    INC SI
+    INC SI
+    
+    MOV CX, D2
+    MOV [SI], CX
+    INC SI
+    INC SI
+    
+    MOV CX, D3
+    MOV [SI], CX
 
-COMPARING D3, D2, D1, D0, SCORE
-LEA SI, MAT
-ADD SI, INDEX
-ADD SI, INDEX
-
-MOV CX, D0
-MOV [SI], CX
-INC SI
-INC SI
-
-MOV CX, D1
-MOV [SI], CX
-INC SI
-INC SI
-
-MOV CX, D2
-MOV [SI], CX
-INC SI
-INC SI
-
-MOV CX, D3
-MOV [SI], CX
-
-
+    
 ENDM
 
 
 
 SHIFT_COL_UP MACRO MAT, INDEX, SCORE
-; CLEAN TEMPORARY VARIABLE
+    ; CLEAN TEMPORARY VARIABLE
 
-LEA SI, MAT
-ADD SI, INDEX
-ADD SI, INDEX
-
-CALL GET_COL_VALUE
-
-COMPARING D3, D2, D1, D0, SCORE
-LEA SI, MAT
-ADD SI, INDEX
-ADD SI, INDEX
-
-MOV CX, D0
-MOV [SI], CX
-ADD SI, 8
-
-MOV CX, D1
-MOV [SI], CX
-ADD SI, 8
-
-MOV CX, D2
-MOV [SI], CX
-ADD SI, 8
-
-MOV CX, D3
-MOV [SI], CX
-ADD SI, 8
-
+    LEA SI, MAT 
+    ADD SI, INDEX
+    ADD SI, INDEX
+    
+    CALL GET_COL_VALUE
+    
+    COMPARING D3, D2, D1, D0, SCORE
+    ALIGNMAT D3, D2, D1, D0, COUNTER
+    LEA SI, MAT
+    ADD SI, INDEX
+    ADD SI, INDEX
+    
+    MOV CX, D0
+    MOV [SI], CX
+    ADD SI, 8
+    
+    MOV CX, D1
+    MOV [SI], CX
+    ADD SI, 8
+    
+    MOV CX, D2
+    MOV [SI], CX
+    ADD SI, 8
+    
+    MOV CX, D3
+    MOV [SI], CX
+    ADD SI, 8
+    
 ENDM
 
 SHIFT_COL_DOWN MACRO MAT, INDEX, SCORE
-; CLEAN TEMPORARY VARIABLE
+    ; CLEAN TEMPORARY VARIABLE
 
-LEA SI, MAT
-ADD SI, INDEX
-ADD SI, INDEX
-
-CALL GET_COL_VALUE
-
-COMPARING D0, D1, D2, D3, SCORE
-LEA SI, MAT
-ADD SI, INDEX
-ADD SI, INDEX
-
-MOV CX, D0
-MOV [SI], CX
-ADD SI, 8
-
-MOV CX, D1
-MOV [SI], CX
-ADD SI, 8
-
-MOV CX, D2
-MOV [SI], CX
-ADD SI, 8
-
-MOV CX, D3
-MOV [SI], CX
-ADD SI, 8
-
+    LEA SI, MAT 
+    ADD SI, INDEX
+    ADD SI, INDEX
+    
+    CALL GET_COL_VALUE
+    
+    COMPARING D0, D1, D2, D3, SCORE
+    ALIGNMAT D0, D1, D2, D3, COUNTER
+    LEA SI, MAT
+    ADD SI, INDEX
+    ADD SI, INDEX
+    
+    MOV CX, D0
+    MOV [SI], CX
+    ADD SI, 8
+    
+    MOV CX, D1
+    MOV [SI], CX
+    ADD SI, 8
+    
+    MOV CX, D2
+    MOV [SI], CX
+    ADD SI, 8
+    
+    MOV CX, D3
+    MOV [SI], CX
+    ADD SI, 8
+    
 ENDM
 
 ;=======================================================================================================
@@ -517,7 +608,7 @@ JE EXIT
 JNE MENU
 
 PLAY:
-PLAYFUNC MATRIX
+PLAYFUNC MATRIX 
 
 SHIFTING:
 MOV AH, 0           ; get arrow movement
@@ -563,4 +654,3 @@ JMP PLAY
 EXIT:
 .exit
 END
-
