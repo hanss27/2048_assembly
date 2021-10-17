@@ -4,7 +4,7 @@
 ; - 
 ; - 
 
-;JUMPS       ;UNCOMMENT WHEN RUNNING TASM, COMMENT WHEN COMPILING
+JUMPS       ;UNCOMMENT WHEN RUNNING TASM, COMMENT WHEN COMPILING
 
 .model small
 .stack 200h
@@ -16,7 +16,9 @@ STRMENU3 DB 'EXIT','$'
 STRBLANK DB ' ','$'
 STRV DB '|','____','|','____','|','____','|','____','|','$' 
 STRP DB '|', '$'
-STRSC DB 'score : ','$'    
+STRSC DB 'score : ','$'
+STRWIN DB 'YOU WIN!!', '$'
+STRLOSE DB 'YOU LOSE!!', '$'    
 COLOR DB ?
 OPTION DB ?
 CSYM DB '>','$'
@@ -29,7 +31,9 @@ D2 DW ?
 D3 DW ?
 F1 DB ?
 F2 DB ?
-F3 DB ?
+F3 DB ? 
+F4 DB ?
+WIN DB ?
 COUNTER DW 0    
 VALUE DW ?     
 REMAINDER DB 0
@@ -625,7 +629,56 @@ SHIFT_COL_DOWN MACRO MAT, INDEX, SCORE
     MOV [SI], CX
     ADD SI, 8
     
+ENDM 
+
+FINAL_CHECK_ROW MACRO MAT, INDEX
+    LOCAL WINFLAG, RET_CHECK
+    LEA SI, MAT                  ; LOAD MAT ADDRESS
+    ADD SI, INDEX                ; ADD MAT ADDRESS ACCORDING TO INDEX, 2 TIMES BECAUSE OF WORD SIZE
+    ADD SI, INDEX                ; GET VALUE FOR D0, D1, D2, D3
+    CALL GET_ROW_VALUE
+    
+    MOV CX, 2048H
+    MOV DX, 0H
+  
+    CMP CX, D0
+    JE WINFLAG
+    
+    CMP CX, D1
+    JE WINFLAG
+    
+    CMP CX, D2
+    JE WINFLAG
+    
+    CMP CX, D3
+    JE WINFLAG
+    JMP RET_CHECK
+    
+    
+    WINFLAG:
+    MOV WIN, 1
+    
+    RET_CHECK:
+        
 ENDM
+
+FINAL_CHECK MACRO MAT
+    FINAL_CHECK_ROW MAT, 00H
+    FINAL_CHECK_ROW MAT, 04H
+    FINAL_CHECK_ROW MAT, 08H
+    FINAL_CHECK_ROW MAT, 0CH
+    
+    CMP WIN, 1
+    JE WIN_OUT
+    JMP END_FINAL
+    
+    WIN_OUT:
+    SETCURSOR 1, 10
+    PRINTLINE STRWIN, 0AH
+    
+    END_FINAL:
+ENDM
+    
 
 ;=======================================================================================================
 .startup
@@ -656,6 +709,9 @@ RANDOM_POPUP
 PLAY:             
 RANDOM_POPUP
 PLAYFUNC MATRIX        
+
+FINAL_CHECK MATRIX
+
 
 SHIFTING:
 MOV AH, 0           ; get arrow movement
