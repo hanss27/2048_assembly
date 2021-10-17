@@ -166,7 +166,7 @@ PRINTNUM SCORE
 ENDM 
 
 PRINTNUM MACRO NUM
-    LOCAL DIVIDE, PRINT
+    LOCAL DIVIDE, PRINT4, PRINT3, PRINT2, PRINT1, EX
         MOV CX, NUM
         MOV D3, 0
         MOV D2, 0
@@ -180,9 +180,9 @@ PRINTNUM MACRO NUM
         DIV BX
         MOV AH, 0
         MOV CX, AX
-        MOV D0, DX
+        MOV D0, DX      
         CMP CX, 0
-        JE PRINT
+        JE PRINT1
         MOV AH, 0     ; 204
         MOV AX, CX
         MOV BX, 10
@@ -190,9 +190,9 @@ PRINTNUM MACRO NUM
         DIV BX
         MOV AH, 0
         MOV CX, AX
-        MOV D1, DX
+        MOV D1, DX    
         CMP CX, 0
-        JE PRINT  
+        JE PRINT2  
         MOV AH, 0
         MOV AX, CX
         MOV BX, 10
@@ -200,9 +200,9 @@ PRINTNUM MACRO NUM
         DIV BX
         MOV AH, 0
         MOV CX, AX
-        MOV D2, DX
+        MOV D2, DX      
         CMP CX, 0
-        JE PRINT
+        JE PRINT3
         MOV AH, 0
         MOV AX, CX
         MOV BX, 10
@@ -210,30 +210,37 @@ PRINTNUM MACRO NUM
         DIV BX
         MOV AH, 0
         MOV CX, AX
-        MOV D3, DX
+        MOV D3, DX      
         CMP CX, 0
-        JE PRINT
-    PRINT:
-        MOV DX, D3
-        MOV DH, 0 
-        MOV AH, 2
-        ADD DL, 48
-        INT 21H
-        MOV DX, D2
-        MOV DH, 0
-        MOV AH, 2
-        ADD DL, 48
-        INT 21H
-        MOV DX, D1
-        MOV DH, 0
-        MOV AH, 2
-        ADD DL, 48
-        INT 21H
-        MOV DX, D0
-        MOV DH, 0
-        MOV AH, 2
-        ADD DL, 48
-        INT 21H        
+        JE PRINT4
+    PRINT4:
+        PRINTN D3
+        PRINTN D2
+        PRINTN D1
+        PRINTN D0 
+        JMP EX
+    PRINT3:      
+        PRINTN D2
+        PRINTN D1
+        PRINTN D0
+        JMP EX
+    PRINT2:      
+        PRINTN D1
+        PRINTN D0
+        JMP EX
+    PRINT1:      
+        PRINTN D0
+        JMP EX
+    EX:
+          
+ENDM  
+
+PRINTN MACRO D
+    MOV DX, D
+    MOV DH, 0
+    MOV AH, 2
+    ADD DL, 48
+    INT 21H
 ENDM
 
 SCORING PROC NEAR   
@@ -363,6 +370,7 @@ GET_COL_VALUE PROC NEAR
     RET
 GET_COL_VALUE ENDP    
 
+
 RANDOM_POPUP MACRO NEAR
     LOCAL GETTIME, RANDOMIZE, FOUR, SEARCHING, INCREMENT, RESET, NEXT, PLACEVAL, LAST         
     LEA SI, MATRIX			
@@ -392,8 +400,9 @@ RANDOM_POPUP MACRO NEAR
         CMP SI, 16
         JNE INCREMENT
     INCREMENT:
-        INC SI
-        INC SI       
+        INC SI        
+        INC SI        
+        JMP NEXT
     RESET:
         LEA SI, MATRIX
     NEXT:
