@@ -398,8 +398,8 @@ RANDOM_POPUP MACRO NEAR
         ADD SI, AX
         CMP [SI], 0
         JMP PLACEVAL  
-        CMP SI, 16
-        JNE INCREMENT
+        CMP SI, 32
+        JE RESET
     INCREMENT:
         INC SI        
         INC SI        
