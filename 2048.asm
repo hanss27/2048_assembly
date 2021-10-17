@@ -34,6 +34,7 @@ F2 DB ?
 F3 DB ? 
 F4 DB ?
 WIN DB ?
+LOSE DB ?
 COUNTER DW 0    
 VALUE DW ?     
 REMAINDER DB 0
@@ -688,7 +689,61 @@ FINAL_CHECK MACRO MAT
     END_FINAL:
 ENDM
     
+LOSE_CHECK_ROW MACRO MAT, INDEX
+    LOCAL LOSEFLAG, LOSE2FLAG, RET_CHECK
+    LEA SI, MAT                  ; LOAD MAT ADDRESS
+    ADD SI, INDEX                ; ADD MAT ADDRESS ACCORDING TO INDEX, 2 TIMES BECAUSE OF WORD SIZE
+    ADD SI, INDEX                ; GET VALUE FOR D0, D1, D2, D3
+    CALL GET_ROW_VALUE
+    
+    MOV CX, 0H                  
+    MOV DX, 0H
+  
+    CMP CX, D0      ; Check if D0 = 0, IF yes jump to LOSE2FLAG, If not jump to LOSEFLAG
+    JNE LOSEFLAG
+    JE LOSE2FLAG
 
+    CMP CX, D1      ; Check if D1 = 0, If yes jump to LOSE2FLAG, if not jump to LOSEFLAG
+    JNE LOSEFLAG
+    JE LOSE2FLAG
+    
+    CMP CX, D2      ; Check if D2 = 0, If yes jump to LOSE2FLAG, if not jump to LOSEFLAG
+    JNE LOSEFLAG
+    JE LOSE2FLAG
+    
+    CMP CX, D3      ; Check if D3 = 0, If yes jump to LOSE2FLAG, if not jump to LOSEFLAG
+    JNE LOSEFLAG
+    JE LOSE2FLAG
+    
+    
+    LOSEFLAG:       
+    MOV LOSE, 1
+    
+    LOSE2FLAG:
+    MOV LOSE, 0
+    JMP RET_CHECK
+    
+    RET_CHECK:
+        
+ENDM   
+LOSE_CHECK MACRO MAT
+    LOCAL LOSE_OUT, END_LOSE
+    LOSE_CHECK_ROW MAT, 00H
+    LOSE_CHECK_ROW MAT, 04H
+    LOSE_CHECK_ROW MAT, 08H
+    LOSE_CHECK_ROW MAT, 0CH
+    
+    CMP LOSE, 1
+    JE LOSE_OUT
+    JMP END_LOSE
+    
+    LOSE_OUT:                   ; Print YOU LOSE!
+    SETCURSOR 1, 10
+    PRINTLINE STRLOSE, 04H
+    
+    END_LOSE:
+ENDM
+    
 ;=======================================================================================================
 .startup
 
@@ -719,7 +774,14 @@ PLAY:
 RANDOM_POPUP
 PLAYFUNC MATRIX        
 
-FINAL_CHECK MATRIX
+CMP COUNTER, 0
+JNE LOSE_COND
+JE NORMAL_COND
+LOSE_COND:
+    LOSE_CHECK MATRIX
+NORMAL_COND:
+    LOSE_CHECK MATRIX
+    FINAL_CHECK MATRIX
 
 
 SHIFTING:
