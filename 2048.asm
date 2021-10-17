@@ -4,7 +4,7 @@
 ; - 
 ; - 
 
-JUMPS       ;UNCOMMENT WHEN RUNNING TASM, COMMENT WHEN COMPILING
+;JUMPS       ;UNCOMMENT WHEN RUNNING TASM, COMMENT WHEN COMPILING
 
 .model small
 .stack 200h
@@ -22,15 +22,17 @@ OPTION DB ?
 CSYM DB '>','$'
 CSROW DB ?
 CSCOL DB ?
-MATRIX DW 512, 512, 1024, 64, 64, 2048, 64, 2, 2, 2, 2, 8, 2, 4, 4, 2 
-D0 DW ?
+MATRIX DW 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 
+D0 DW ?                                             
 D1 DW ?
 D2 DW ?
 D3 DW ?
 F1 DB ?
 F2 DB ?
 F3 DB ?
-COUNTER DW 0
+COUNTER DW 0    
+VALUE DW ?     
+REMAINDER DB 0
 
 ;=======================================================================================================
 .code
@@ -355,7 +357,49 @@ GET_COL_VALUE PROC NEAR
     ADD SI,8
     
     RET
-GET_COL_VALUE ENDP
+GET_COL_VALUE ENDP    
+
+RANDOM_POPUP MACRO NEAR
+    LOCAL GETTIME, RANDOMIZE, FOUR, SEARCHING, INCREMENT, RESET, NEXT, PLACEVAL, LAST         
+    LEA SI, MATRIX			
+    MOV CX, 16   
+    GETTIME:
+        MOV AH, 2CH
+        INT 21H
+    RANDOMIZE:  
+        MOV AX,0
+        MOV AL, DL
+        MOV DL, 16
+        DIV DL  
+        MOV REMAINDER, AH
+        SHR AH, 1
+        JC FOUR
+        MOV VALUE, 2
+        JMP SEARCHING
+    FOUR: 
+        MOV VALUE, 4     
+    SEARCHING:        
+        MOV AX, 0
+        MOV AL, REMAINDER
+        ADD SI, AX         
+        ADD SI, AX
+        CMP [SI], 0
+        JMP PLACEVAL  
+        CMP SI, 16
+        JNE INCREMENT
+    INCREMENT:
+        INC SI
+        INC SI       
+    RESET:
+        LEA SI, MATRIX
+    NEXT:
+        LOOP SEARCHING
+    PLACEVAL:         
+        MOV DX, VALUE
+        MOV [SI], DX
+        JMP LAST
+    LAST:
+ENDM
 
 ALIGNMAT MACRO  D0, D1, D2, D3, COUNTER
     LOCAL ALIGN1, ALIGN2, ALIGN2F, ALIGN3,ALIGN3F,RETURN
@@ -438,7 +482,7 @@ ALIGNMAT MACRO  D0, D1, D2, D3, COUNTER
         MOV D1, AX
         MOV D0, 0
         JMP RETURN
-    RETURN:                
+    RETURN:               
 ENDM
 
 SHIFT_ROW_RIGHT MACRO MAT, INDEX, SCORE
@@ -487,7 +531,8 @@ SHIFT_ROW_LEFT MACRO MAT, INDEX, SCORE
     CALL GET_ROW_VALUE
     
     COMPARING D3, D2, D1, D0, SCORE
-    ALIGNMAT D3, D2, D1, D0, COUNTER
+    ALIGNMAT D3, D2, D1, D0, COUNTER   
+    
 
     LEA SI, MAT
     ADD SI, INDEX
@@ -607,8 +652,9 @@ JE EXIT
 
 JNE MENU
 
-PLAY:
-PLAYFUNC MATRIX 
+PLAY:             
+RANDOM_POPUP
+PLAYFUNC MATRIX        
 
 SHIFTING:
 MOV AH, 0           ; get arrow movement
@@ -627,7 +673,7 @@ ARROWDOWN:
 SHIFT_COL_DOWN  MATRIX, 00H, SCORE
 SHIFT_COL_DOWN  MATRIX, 01H, SCORE
 SHIFT_COL_DOWN  MATRIX, 02H, SCORE
-SHIFT_COL_DOWN  MATRIX, 03H, SCORE
+SHIFT_COL_DOWN  MATRIX, 03H, SCORE 
 JMP PLAY
 
 ARROWUP:
