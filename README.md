@@ -2,7 +2,7 @@
 
 2048 Game Created in Assembly Language used for Final Project
 
-# Contributors:
+### Contributors:
 - Louis Mayco Dillon Wijaya
 - Muhammad Fadhil Al Hafizh
 - Raihan Muhammad Syahran
